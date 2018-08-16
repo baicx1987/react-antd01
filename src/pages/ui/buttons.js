@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Card, Button, Icon,Radio} from "antd";
-import "./index.less";
+import "./ui.less";
 
 export default class Buttons extends Component {
     state = {
@@ -42,7 +42,7 @@ export default class Buttons extends Component {
                     <Button shape="circle" loading={this.state.loadState}></Button>
                     <Button type="primary" onClick={this.handleCloseLoading}>关闭</Button>
                 </Card>
-                <Card title="按钮组">
+                <Card title="按钮组" style={{marginBottom:"10px"}}>
                     <Button.Group>
                         <Button type="primary">
                             <Icon type="left"></Icon>返回
