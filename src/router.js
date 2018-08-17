@@ -1,5 +1,5 @@
 import React,{ Component } from "react";
-import { HashRouter,Route,Link,Switch } from "react-router-dom";
+import { HashRouter,Route,Switch } from "react-router-dom";
 import App from "./App";
 import Admin from "./admin";
 import Login from "./pages/Login";
@@ -12,6 +12,10 @@ import Messages from "./pages/ui/messages";
 import TabsPage from "./pages/ui/tabs";
 import Gallery from "./pages/ui/gallery";
 import CarouselPage from "./pages/ui/carousel";
+import LoginPage from "./pages/form/login";
+import Reg from "./pages/form/reg";
+import BasicTable from "./pages/table/basic";
+import HighTable from "./pages/table/high";
 
 export default class IRouter extends Component{
     render(){
@@ -30,6 +34,10 @@ export default class IRouter extends Component{
                                 <Route path="/admin/ui/tabs" component={TabsPage} /> 
                                 <Route path="/admin/ui/gallery" component={Gallery} /> 
                                 <Route path="/admin/ui/carousel" component={CarouselPage} /> 
+                                <Route path="/admin/form/login" component={LoginPage} /> 
+                                <Route path="/admin/form/reg" component={Reg} /> 
+                                <Route path="/admin/table/basic" component={BasicTable} /> 
+                                <Route path="/admin/table/high" component={HighTable} /> 
                                 <Route component={NoMatch} />
                             </Switch>
                         </Admin>
