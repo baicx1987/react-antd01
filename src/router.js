@@ -16,6 +16,7 @@ import LoginPage from "./pages/form/login";
 import Reg from "./pages/form/reg";
 import BasicTable from "./pages/table/basic";
 import HighTable from "./pages/table/high";
+import City from "./pages/city";
 
 export default class IRouter extends Component{
     render(){
@@ -38,6 +39,7 @@ export default class IRouter extends Component{
                                 <Route path="/admin/form/reg" component={Reg} /> 
                                 <Route path="/admin/table/basic" component={BasicTable} /> 
                                 <Route path="/admin/table/high" component={HighTable} /> 
+                                <Route path="/admin/city" component={City} /> 
                                 <Route component={NoMatch} />
                             </Switch>
                         </Admin>
