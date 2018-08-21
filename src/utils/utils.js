@@ -9,7 +9,7 @@ export default {
     },
     pagination(data,callback){
         return {
-            current:data.result.current,
+            current:data.result.page,
             onChange: (current,pageSize)=>{
                 callback(current, pageSize);
             },
