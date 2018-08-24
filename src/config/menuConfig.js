@@ -93,33 +93,33 @@ const menuList = [
     },
     {
         title: '员工管理',
-        key: '/user'
+        key: '/admin/user'
     },
     {
         title: '车辆地图',
-        key: '/bikeMap'
+        key: '/admin/bikeMap'
     },
     {
         title: '图标',
-        key: '/charts',
+        key: '/admin/echarts',
         children: [
             {
                 title: '柱形图',
-                key: '/charts/bar'
+                key: '/admin/echarts/bar'
             },
             {
                 title: '饼图',
-                key: '/charts/pie'
+                key: '/admin/echarts/pie'
             },
             {
                 title: '折线图',
-                key: '/charts/line'
+                key: '/admin/echarts/line'
             },
         ]
     },
     {
         title: '权限设置',
-        key: '/permission'
+        key: '/admin/permission'
     },
 ];
 export default menuList;

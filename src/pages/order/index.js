@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import { Card, Form, Table, message, Button, Modal, Select, DatePicker } from "antd";
 import axios from "../../axios";
 import utils from "../../utils/utils";
-
+import BaseForm from "../../components/BaseForm";
+import ETable from "../../components/ETable";
 export default class Order extends Component {
 
     state = {
@@ -13,38 +14,82 @@ export default class Order extends Component {
     params = {
         page: 1
     }
+    formList = [
+        {
+            type: 'SELECT',
+            label: '城市',
+            field: 'city',
+            placeholder: '全部',
+            initialValue: '1',
+            width:120,
+            list: [
+                {
+                    id: '0',
+                    name: '全部'
+                },
+                {
+                    id: '1',
+                    name: '北京'
+                },
+                {
+                    id: '2',
+                    name: '上海'
+                },
+                {
+                    id: '3',
+                    name: '天津'
+                }
+            ]
+        },
+        {
+            type: 'DATAQUERY',
+            label: '订单时间',
+            fields:[
+                'start_time',
+                'end_time'
+            ]
+        },
+        {
+            type: 'SELECT',
+            label: '订单状态',
+            field:'order_status',
+            placeholder: '全部',
+            initialValue: '1',
+            width:100,
+            list: [
+                {
+                    id: '0',
+                    name: '全部'
+                },
+                {
+                    id: '1',
+                    name: '进行中'
+                },
+                {
+                    id: '2',
+                    name: '结束行程'
+                }
+            ]
+        },
+    ]
     //请求接口数据
     requestList = () => {
-        let _this = this;
-        axios.ajax({
-            url: '/order/list',
-            data: {
-                params: {
-                    page: this.params.page
-                }
-            }
-        }).then((res) => {
-            this.setState({
-                list: res.result.item_list.map((item, index) => {
-                    item.key = index;
-                    return item;
-                }),
-                pagination: utils.pagination(res, (current) => {
-                    _this.params.page = current;
-                    _this.requestList();
-                })
-            });
-        })
+        axios.requestList(this, '/order/list', this.params,true);
     }
 
     componentDidMount() {
         this.requestList();
     }
 
+    handleFilter = (params) => {
+        this.params = params;
+        this.requestList();
+    }
+
     // 订单结束确认
     handleConfirm = () => {
-        let item = this.state.selectedItem;
-        if (!item) {
+        let items = this.state.selectedItem;
+        if (!items || items.length > 1) {
             Modal.info({
                 title: '信息',
                 content: '请选择一条订单进行结束'
@@ -55,7 +100,7 @@ export default class Order extends Component {
             url: '/order/ebike_info',
             data: {
                 params: {
-                    orderId: item.id
+                    orderId: items[0].id
                 }
             }
         }).then((res) => {
@@ -70,12 +115,12 @@ export default class Order extends Component {
 
     // 结束订单
     handleFinishOrder = () => {
-        let item = this.state.selectedItem;
+        let items = this.state.selectedItem;
         axios.ajax({
             url: '/order/finish_order',
             data: {
                 params: {
-                    orderId: item.id
+                    orderId: items[0].id
                 }
             }
         }).then((res) => {
@@ -89,31 +134,20 @@ export default class Order extends Component {
         })
     }
 
-    openOrderDitail = () =>{
-        let item = this.state.selectedItem;
-        if (!item) {
+    //打开订单详情
+    openOrderDitail = () => {
+        let items = this.state.selectedItem;
+        if (!items || items.length>1) {
             Modal.info({
                 title: '信息',
                 content: '请选择一条订单'
             })
             return;
         }
-        window.open('/#/common/order/detail/'+item.id);
+        window.open('/#/common/order/detail/' + items[0].id);
     }
 
-    onRowClick = (record, index) => {
-        let selectKey = [index];
-        this.setState({
-            selectedRowKeys: selectKey,
-            selectedItem: record
-        })
-    }
-    onSelectChange = (selectedRowKeys, records) => {
-        this.setState({ 
-            selectedRowKeys,
-            selectedItem: records[0]
-        });
-    }
+
     render() {
         const columns = [
             {
@@ -164,12 +198,6 @@ export default class Order extends Component {
                 dataIndex: 'user_pay'
             },
         ];
-        const selectedRowKeys = this.state.selectedRowKeys;
-        const rowSelection = {
-            type: 'radio',
-            selectedRowKeys,
-            onChange: this.onSelectChange
-        }
         const formItemLayout = {
             labelCol: { span: 5 },
             wrapperCol: { span: 19 }
@@ -177,27 +205,23 @@ export default class Order extends Component {
         return (
             <div>
                 <Card>
-                    <FilterForm />
+                    <BaseForm formList={this.formList} filterSubmit={this.handleFilter}/>
                 </Card>
                 <Card style={{ marginTop: 10 }}>
                     <Button type="primary" onClick={this.openOrderDitail}>订单详情</Button>
                     <Button style={{ margin: '0 20px' }} type="danger" onClick={this.handleConfirm}>结束订单</Button>
                 </Card>
                 <div className="content-warp">
-                    <Table
-                        rowSelection={rowSelection}
-                        bordered={true}
+                    <ETable
                         columns={columns}
                         dataSource={this.state.list}
                         pagination={this.state.pagination}
-                        onRow={(record, index) => {
-                            return {
-                                onClick: () => {
-                                    this.onRowClick(record, index);
-                                }
-                            };
-                        }}
-                    />
+                        selectedRowKeys={this.state.selectedRowKeys}
+                        selectedIds={this.state.selectedIds}
+                        selectedItem={this.state.selectedItem}
+                        updateSelectedItem={utils.updateSelectedItem.bind(this)}
+                        rowSelection="radio"
+                    ></ETable>
                 </div>
                 <Modal
                     title="结束订单"
@@ -229,68 +253,3 @@ export default class Order extends Component {
         );
     }
 }
-
-class FilterForm extends Component {
-    render() {
-        const { getFieldDecorator } = this.props.form;
-        return (
-            <Form layout="inline">
-                <Form.Item label="城市">
-                    {
-                        getFieldDecorator('city_id')(
-                            <Select
-                                style={{ width: 80 }}
-                                placeholder="全部"
-                            >
-                                <Select.Option value="">全部</Select.Option>
-                                <Select.Option value="1">北京市</Select.Option>
-                                <Select.Option value="2">天津市</Select.Option>
-                                <Select.Option value="3">上海市</Select.Option>
-                            </Select>
-                        )
-                    }
-                </Form.Item>
-                <Form.Item label="订单时间">
-                    {
-                        getFieldDecorator('start_time')(
-                            <DatePicker
-                                style={{ width: 200 }}
-                                showTime
-                                format="YYYY-MM-DD HH:mm:ss"></DatePicker>
-                        )
-                    }
-                </Form.Item>
-                <Form.Item label="~" colon={false}>
-                    {
-                        getFieldDecorator('end_time')(
-                            <DatePicker
-                                style={{ width: 200 }}
-                                showTime
-                                format="YYYY-MM-DD HH:mm:ss"></DatePicker>
-                        )
-                    }
-                </Form.Item>
-                <Form.Item label="订单状态">
-                    {
-                        getFieldDecorator('mode')(
-                            <Select
-                                style={{ width: 140 }}
-                                placeholder="全部"
-                            >
-                                <Select.Option value="">全部</Select.Option>
-                                <Select.Option value="1">进行中</Select.Option>
-                                <Select.Option value="2">结束行程</Select.Option>
-                            </Select>
-                        )
-                    }
-                </Form.Item>
-
-                <Form.Item>
-                    <Button type="primary" style={{ margin: '0 20px' }}>查询</Button>
-                    <Button>重置</Button>
-                </Form.Item>
-            </Form>
-        );
-    }
-}
-FilterForm = Form.create({})(FilterForm);
