@@ -3,15 +3,28 @@ import { Menu, Icon } from 'antd';
 import { NavLink } from "react-router-dom";
 import './index.less'
 import MenuConfig from "../../config/menuConfig";
+import { connect } from "react-redux";
+import { switchMenu } from "../../redux/action";
 
 const SubMenu = Menu.SubMenu;
 
-
-export default class NavLeft extends Component {
+class NavLeft extends Component {
+    state ={
+        currentKey:''
+    }
     componentWillMount() {
         const menuTreeNode = this.renderMenu(MenuConfig);
+        let currentKey = window.location.hash.replace(/#|\?.*$/g,'');
         this.setState({
-            menuTreeNode
+            menuTreeNode,
+            currentKey
+        });
+    }
+    handleOnClick = ({item},key) =>{
+        const { dispatch } = this.props;
+        dispatch(switchMenu(item.props.title));
+        this.setState({
+            currentKey:key
         });
     }
     //菜单渲染
@@ -38,17 +51,16 @@ export default class NavLeft extends Component {
                     <img src="/assets/logo-ant.svg" alt="" />
                     <h1>Imook MS</h1>
                 </div>
-                <Menu theme="dark">
+                <Menu theme="dark"
+                    onClick={this.handleOnClick}
+                    selectedKeys={[this.state.currentKey]}
+                >
                     {this.state.menuTreeNode}
-                    {/* <SubMenu key="sub1" title={<span><Icon type="mail" /><span>Navigation One</span></span>}>
-                                <Menu.Item key="1">Option 1</Menu.Item>
-                                <Menu.Item key="2">Option 2</Menu.Item>
-                                <Menu.Item key="3">Option 3</Menu.Item>
-                                <Menu.Item key="4">Option 4</Menu.Item>
-                        </SubMenu> */}
                 </Menu>
 
             </div>
         );
     }
 }
+
+export default connect()(NavLeft);
